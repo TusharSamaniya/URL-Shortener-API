@@ -27,7 +27,8 @@ url-shortener/
 ├── frontend/                # Web UI (plain HTML/CSS/JS, no build step)
 │   ├── index.html
 │   ├── styles.css
-│   └── app.js
+│   ├── app.js
+│   └── Dockerfile           # Serves the UI with nginx
 ├── README.md
 └── .gitignore
 ```
@@ -53,19 +54,19 @@ malformed URLs are rejected with a `422`.
 
 ## How to Run
 
-### 1. Backend
+### Option A — Docker Compose (recommended, runs everything)
 
-**Option A — Docker Compose (recommended)**
+One command builds and starts **PostgreSQL + API + frontend**:
 
 ```bash
 cd backend
 docker-compose up --build
 ```
 
-The API will be available at **http://localhost:8000**, docs at
-**http://localhost:8000/docs**.
+- API: **http://localhost:8000** — docs at **http://localhost:8000/docs**
+- Frontend UI: **http://localhost:5500**
 
-**Option B — Run locally**
+### Option B — Run locally
 
 Prerequisites: Python 3.11+, a running PostgreSQL instance.
 
@@ -78,9 +79,7 @@ cp .env.example .env              # adjust DATABASE_URL if needed
 uvicorn app.main:app --reload
 ```
 
-### 2. Frontend
-
-The UI needs no install step — just serve the folder with any static server:
+Then serve the frontend with any static server (no install step):
 
 ```bash
 cd frontend

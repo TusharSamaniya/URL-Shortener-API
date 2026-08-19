@@ -58,7 +58,9 @@ def create_short_url(db: Session, original_url: str) -> models.URL:
         db.add(db_url)
         try:
             db.commit()
-        except IntegrityError:
+        except IntegrityError as e:
+            # Log the actual constraint that failed (helps debug)
+            print(f"IntegrityError: {e.orig}")  # shows constraint name
             # Either our short code collided, or another request just
             # created this same URL — roll back and try again.
             db.rollback()
