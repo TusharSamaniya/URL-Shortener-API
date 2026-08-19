@@ -1,6 +1,3 @@
-/* URL Shortener frontend logic — talks to the FastAPI backend. */
-
-// Change this if your backend runs somewhere else.
 const API_BASE_URL = "http://localhost:8000";
 
 const $ = (id) => document.getElementById(id);
