@@ -1,4 +1,3 @@
-"""Pydantic schemas — define the shape of API requests and responses."""
 from datetime import datetime
 
 from pydantic import BaseModel, HttpUrl, ConfigDict

@@ -1,11 +1,5 @@
-"""
-Application configuration.
-
-All settings are read from environment variables (with sensible local
-defaults), so the same code works locally, in Docker, and in production
-just by changing environment variables — no code changes required.
-"""
 import os
+from typing import List
 
 from dotenv import load_dotenv
 
@@ -28,6 +22,13 @@ class Settings:
 
     # Length of the randomly generated short code.
     SHORT_CODE_LENGTH: int = int(os.getenv("SHORT_CODE_LENGTH", "6"))
+
+    # Comma-separated list of allowed CORS origins.
+    # e.g. "http://localhost:5500,https://yourfrontend.com"
+    @property
+    def CORS_ORIGINS(self) -> List[str]:
+        raw = os.getenv("CORS_ORIGINS", "http://localhost:5500,http://127.0.0.1:5500")
+        return [origin.strip() for origin in raw.split(",") if origin.strip()]
 
 
 settings = Settings()

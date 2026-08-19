@@ -1,9 +1,4 @@
-"""
-Database access ("CRUD") helpers.
-
-Kept separate from the route handlers in main.py so the API layer stays
-thin and the persistence logic is easy to test/reuse in isolation.
-"""
+import logging
 import secrets
 import string
 
@@ -12,6 +7,8 @@ from sqlalchemy.orm import Session
 
 from app import models
 from app.config import settings
+
+logger = logging.getLogger(__name__)
 
 # Characters used to build short codes: mixed-case letters + digits (base62).
 # Avoids ambiguous-looking URLs and keeps codes short while still having a
@@ -59,10 +56,9 @@ def create_short_url(db: Session, original_url: str) -> models.URL:
         try:
             db.commit()
         except IntegrityError as e:
-            # Log the actual constraint that failed (helps debug)
-            print(f"IntegrityError: {e.orig}")  # shows constraint name
             # Either our short code collided, or another request just
             # created this same URL — roll back and try again.
+            logger.warning("IntegrityError on insert, retrying: %s", e.orig)
             db.rollback()
             continue
 

@@ -1,4 +1,3 @@
-"""SQLAlchemy ORM models."""
 from sqlalchemy import Column, Integer, String, DateTime, func
 
 from app.database import Base

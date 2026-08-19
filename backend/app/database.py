@@ -1,10 +1,3 @@
-"""
-Database setup using SQLAlchemy.
-
-Creates the engine, session factory, and declarative base used across
-the app, plus a FastAPI dependency (`get_db`) that yields a session per
-request and always closes it afterwards.
-"""
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
