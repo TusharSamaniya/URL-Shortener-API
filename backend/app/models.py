@@ -21,7 +21,3 @@ class URL(Base):
     original_url = Column(String, unique=True, index=True, nullable=False)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-
-    # Number of times the short link has been visited (nice-to-have,
-    # demonstrates a bit of extra API design thinking beyond the bare spec).
-    clicks = Column(Integer, default=0, nullable=False)

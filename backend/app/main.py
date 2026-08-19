@@ -8,13 +8,13 @@ Endpoints
 ---------
 POST /shorten          Accept a long URL, return a shortened URL.
 GET  /{short_code}      Redirect to the original URL.
-GET  /shorten/{code}/stats   (bonus) View click stats for a short code.
 GET  /health            Basic health check.
 
 Run with:  uvicorn app.main:app --reload
 See README.md for full setup instructions.
 """
 from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
@@ -31,6 +31,15 @@ app = FastAPI(
     title="URL Shortener API",
     description="A basic URL shortener built with FastAPI and PostgreSQL.",
     version="1.0.0",
+)
+
+# Allow the separate frontend folder (served from localhost:5500) to call
+# this API from a browser. Restrict to your real frontend origin in prod.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5500", "http://127.0.0.1:5500"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
 )
 
 
@@ -65,38 +74,11 @@ def shorten_url(payload: schemas.URLCreateRequest, db: Session = Depends(get_db)
     )
 
 
-@app.get("/shorten/{short_code}/stats", response_model=schemas.URLStatsResponse, tags=["shortener"])
-def get_stats(short_code: str, db: Session = Depends(get_db)):
-    """(Bonus) Return metadata and click count for a given short code."""
-    db_url = crud.get_url_by_short_code(db, short_code)
-    if not db_url:
-        raise HTTPException(status_code=404, detail="Short code not found")
-
-    return schemas.URLStatsResponse(
-        short_code=db_url.short_code,
-        short_url=f"{settings.BASE_URL}/{db_url.short_code}",
-        original_url=db_url.original_url,
-        created_at=db_url.created_at,
-        clicks=db_url.clicks,
-    )
-
-
 @app.get("/{short_code}", tags=["shortener"])
 def redirect_to_original(short_code: str, db: Session = Depends(get_db)):
-    """
-    Redirect a short code to its original long URL.
-
-    Returns a 404 if the short code doesn't exist, and increments the
-    click counter on every successful redirect.
-    """
+    """Redirect a short code to its original long URL (404 if not found)."""
     db_url = crud.get_url_by_short_code(db, short_code)
     if not db_url:
         raise HTTPException(status_code=404, detail="Short URL not found")
-
-    # Record the visit, but never let a tracking failure break the redirect.
-    try:
-        crud.increment_clicks(db, db_url)
-    except Exception:
-        pass
 
     return RedirectResponse(url=db_url.original_url, status_code=status.HTTP_307_TEMPORARY_REDIRECT)

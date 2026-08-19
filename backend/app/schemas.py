@@ -23,9 +23,3 @@ class URLResponse(BaseModel):
     # Lets Pydantic build this schema directly from a SQLAlchemy model
     # instance (accessing attributes instead of requiring a dict).
     model_config = ConfigDict(from_attributes=True)
-
-
-class URLStatsResponse(URLResponse):
-    """Response for the optional stats endpoint — adds click count."""
-
-    clicks: int

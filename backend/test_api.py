@@ -64,15 +64,3 @@ def test_redirect_to_original_url():
 def test_redirect_unknown_code_returns_404():
     response = client.get("/doesnotexist", follow_redirects=False)
     assert response.status_code == 404
-
-
-def test_stats_endpoint_tracks_clicks():
-    create_resp = client.post("/shorten", json={"original_url": "https://stats-test.com/"})
-    short_code = create_resp.json()["short_code"]
-
-    client.get(f"/{short_code}", follow_redirects=False)
-    client.get(f"/{short_code}", follow_redirects=False)
-
-    stats_resp = client.get(f"/shorten/{short_code}/stats")
-    assert stats_resp.status_code == 200
-    assert stats_resp.json()["clicks"] == 2

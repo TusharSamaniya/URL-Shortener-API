@@ -7,7 +7,6 @@ thin and the persistence logic is easy to test/reuse in isolation.
 import secrets
 import string
 
-from sqlalchemy import update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -69,14 +68,3 @@ def create_short_url(db: Session, original_url: str) -> models.URL:
         return db_url
 
     raise RuntimeError("Could not generate a unique short code, try again.")
-
-
-def increment_clicks(db: Session, db_url: models.URL) -> None:
-    # Increment in SQL (not `db_url.clicks += 1`) so concurrent requests
-    # can't lose updates to a read-modify-write race.
-    db.execute(
-        update(models.URL)
-        .where(models.URL.id == db_url.id)
-        .values(clicks=models.URL.clicks + 1)
-    )
-    db.commit()
